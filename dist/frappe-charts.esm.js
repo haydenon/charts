@@ -230,6 +230,10 @@ const DEFAULT_CHAR_WIDTH = 7;
 const ANGLE_RATIO = Math.PI / 180;
 const FULL_ANGLE = 360;
 
+/**
+ * Returns the value of a number upto 2 decimal places.
+ * @param {Number} d Any number
+ */
 function floatTwo(d) {
 	return parseFloat(d.toFixed(2));
 }
@@ -1173,7 +1177,7 @@ class BaseChart {
 
 		this.initTimeout = INIT_CHART_UPDATE_TIMEOUT;
 
-		if(this.config.isNavigable) {
+		if (this.config.isNavigable) {
 			this.overlays = [];
 		}
 
@@ -1185,8 +1189,8 @@ class BaseChart {
 		this.setMargins();
 
 		// Bind window events
-		window.addEventListener('resize', () => this.draw(true));
-		window.addEventListener('orientationchange', () => this.draw(true));
+		window.addEventListener('resize', this.widthOnlyDraw);
+		window.addEventListener('orientationchange', this.widthOnlyDraw);
 	}
 
 	setColors() {
@@ -1197,7 +1201,7 @@ class BaseChart {
 			? args.data.labels
 			: args.data.datasets;
 
-		if(!args.colors || (list && args.colors.length < list.length)) {
+		if (!args.colors || (list && args.colors.length < list.length)) {
 			this.colors = DEFAULT_COLORS;
 		} else {
 			this.colors = args.colors;
@@ -1222,7 +1226,7 @@ class BaseChart {
 	}
 
 	setup() {
-		if(this.validate()) {
+		if (this.validate()) {
 			this._setup();
 		}
 	}
@@ -1263,9 +1267,9 @@ class BaseChart {
 		this.bindTooltip();
 	}
 
-	bindTooltip() {}
+	bindTooltip() { }
 
-	draw(onlyWidthChange=false, init=false) {
+	draw(onlyWidthChange = false, init = false) {
 		this.calcWidth();
 		this.calc(onlyWidthChange);
 		this.makeChartArea();
@@ -1275,16 +1279,20 @@ class BaseChart {
 		// this.components.forEach(c => c.make());
 		this.render(this.components, false);
 
-		if(init) {
+		if (init) {
 			this.data = this.realData;
-			setTimeout(() => {this.update();}, this.initTimeout);
+			setTimeout(() => { this.update(); }, this.initTimeout);
 		}
 
-		if(!onlyWidthChange) {
+		if (!onlyWidthChange) {
 			this.renderLegend();
 		}
 
 		this.setupNavigation(init);
+	}
+
+	widthOnlyDraw() {
+		this.draw(true);
 	}
 
 	calcWidth() {
@@ -1292,24 +1300,24 @@ class BaseChart {
 		this.width = this.baseWidth - (this.leftMargin + this.rightMargin);
 	}
 
-	update(data=this.data) {
+	update(data = this.data) {
 		this.data = this.prepareData(data);
 		this.calc(); // builds state
 		this.render();
 	}
 
-	prepareData(data=this.data) {
+	prepareData(data = this.data) {
 		return data;
 	}
 
-	prepareFirstData(data=this.data) {
+	prepareFirstData(data = this.data) {
 		return data;
 	}
 
-	calc() {} // builds state
+	calc() { } // builds state
 
-	render(components=this.components, animate=true) {
-		if(this.config.isNavigable) {
+	render(components = this.components, animate = true) {
+		if (this.config.isNavigable) {
 			// Remove all existing overlays
 			this.overlays.map(o => o.parentNode.removeChild(o));
 			// ref.parentNode.insertBefore(element, ref);
@@ -1319,7 +1327,7 @@ class BaseChart {
 		components.forEach(c => {
 			elementsToAnimate = elementsToAnimate.concat(c.update(animate));
 		});
-		if(elementsToAnimate.length > 0) {
+		if (elementsToAnimate.length > 0) {
 			runSMILAnimation(this.chartWrapper, this.svg, elementsToAnimate);
 			setTimeout(() => {
 				components.forEach(c => c.make());
@@ -1332,7 +1340,7 @@ class BaseChart {
 	}
 
 	updateNav() {
-		if(this.config.isNavigable) {
+		if (this.config.isNavigable) {
 			// if(!this.overlayGuides){
 			this.makeOverlay();
 			this.bindUnits();
@@ -1343,7 +1351,7 @@ class BaseChart {
 	}
 
 	makeChartArea() {
-		if(this.svg) {
+		if (this.svg) {
 			this.chartWrapper.removeChild(this.svg);
 		}
 		this.svg = makeSVGContainer(
@@ -1368,12 +1376,12 @@ class BaseChart {
 		);
 	}
 
-	renderLegend() {}
+	renderLegend() { }
 
-	setupNavigation(init=false) {
-		if(!this.config.isNavigable) return;
+	setupNavigation(init = false) {
+		if (!this.config.isNavigable) return;
 
-		if(init) {
+		if (init) {
 			this.bindOverlay();
 
 			this.keyActions = {
@@ -1385,9 +1393,9 @@ class BaseChart {
 			};
 
 			document.addEventListener('keydown', (e) => {
-				if(isElementInViewport(this.chartWrapper)) {
+				if (isElementInViewport(this.chartWrapper)) {
 					e = e || window.event;
-					if(this.keyActions[e.keyCode]) {
+					if (this.keyActions[e.keyCode]) {
 						this.keyActions[e.keyCode]();
 					}
 				}
@@ -1395,27 +1403,32 @@ class BaseChart {
 		}
 	}
 
-	makeOverlay() {}
-	updateOverlay() {}
-	bindOverlay() {}
-	bindUnits() {}
+	makeOverlay() { }
+	updateOverlay() { }
+	bindOverlay() { }
+	bindUnits() { }
 
-	onLeftArrow() {}
-	onRightArrow() {}
-	onUpArrow() {}
-	onDownArrow() {}
-	onEnterKey() {}
+	onLeftArrow() { }
+	onRightArrow() { }
+	onUpArrow() { }
+	onDownArrow() { }
+	onEnterKey() { }
 
-	addDataPoint() {}
-	removeDataPoint() {}
+	addDataPoint() { }
+	removeDataPoint() { }
 
-	getDataPoint() {}
-	setCurrentDataPoint() {}
+	getDataPoint() { }
+	setCurrentDataPoint() { }
 
-	updateDataset() {}
+	updateDataset() { }
 
 	getDifferentChart(type) {
 		return getDifferentChart(type, this.type, this.parent, this.rawChartArgs);
+	}
+
+	unbindWindowEvents() {
+		window.removeEventListener('resize', this.widthOnlyDraw);
+		window.removeEventListener('orientationchange', this.widthOnlyDraw);
 	}
 }
 
@@ -3252,6 +3265,7 @@ class AxisChart extends BaseChart {
 	// removeDataPoint(index = 0) {}
 }
 
+// import MultiAxisChart from './charts/MultiAxisChart';
 const chartTypes = {
 	// multiaxis: MultiAxisChart,
 	percentage: PercentageChart,
