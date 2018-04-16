@@ -1,8 +1,10 @@
 import SvgTip from '../objects/SvgTip';
 import { $, isElementInViewport, getElementContentWidth } from '../utils/dom';
 import { makeSVGContainer, makeSVGDefs, makeSVGGroup } from '../utils/draw';
-import { VERT_SPACE_OUTSIDE_BASE_CHART, TRANSLATE_Y_BASE_CHART, LEFT_MARGIN_BASE_CHART,
-	RIGHT_MARGIN_BASE_CHART, INIT_CHART_UPDATE_TIMEOUT, CHART_POST_ANIMATE_TIMEOUT } from '../utils/constants';
+import {
+	VERT_SPACE_OUTSIDE_BASE_CHART, TRANSLATE_Y_BASE_CHART, LEFT_MARGIN_BASE_CHART,
+	RIGHT_MARGIN_BASE_CHART, INIT_CHART_UPDATE_TIMEOUT, CHART_POST_ANIMATE_TIMEOUT
+} from '../utils/constants';
 import { getColor, DEFAULT_COLORS } from '../utils/colors';
 import { getDifferentChart } from '../config';
 import { runSMILAnimation } from '../utils/animation';
@@ -35,7 +37,7 @@ export default class BaseChart {
 
 		this.initTimeout = INIT_CHART_UPDATE_TIMEOUT;
 
-		if(this.config.isNavigable) {
+		if (this.config.isNavigable) {
 			this.overlays = [];
 		}
 
@@ -47,8 +49,8 @@ export default class BaseChart {
 		this.setMargins();
 
 		// Bind window events
-		window.addEventListener('resize', () => this.draw(true));
-		window.addEventListener('orientationchange', () => this.draw(true));
+		window.addEventListener('resize', this.widthOnlyDraw);
+		window.addEventListener('orientationchange', this.widthOnlyDraw);
 	}
 
 	setColors() {
@@ -59,7 +61,7 @@ export default class BaseChart {
 			? args.data.labels
 			: args.data.datasets;
 
-		if(!args.colors || (list && args.colors.length < list.length)) {
+		if (!args.colors || (list && args.colors.length < list.length)) {
 			this.colors = DEFAULT_COLORS;
 		} else {
 			this.colors = args.colors;
@@ -84,7 +86,7 @@ export default class BaseChart {
 	}
 
 	setup() {
-		if(this.validate()) {
+		if (this.validate()) {
 			this._setup();
 		}
 	}
@@ -125,9 +127,9 @@ export default class BaseChart {
 		this.bindTooltip();
 	}
 
-	bindTooltip() {}
+	bindTooltip() { }
 
-	draw(onlyWidthChange=false, init=false) {
+	draw(onlyWidthChange = false, init = false) {
 		this.calcWidth();
 		this.calc(onlyWidthChange);
 		this.makeChartArea();
@@ -137,16 +139,20 @@ export default class BaseChart {
 		// this.components.forEach(c => c.make());
 		this.render(this.components, false);
 
-		if(init) {
+		if (init) {
 			this.data = this.realData;
-			setTimeout(() => {this.update();}, this.initTimeout);
+			setTimeout(() => { this.update(); }, this.initTimeout);
 		}
 
-		if(!onlyWidthChange) {
+		if (!onlyWidthChange) {
 			this.renderLegend();
 		}
 
 		this.setupNavigation(init);
+	}
+
+	widthOnlyDraw() {
+		this.draw(true);
 	}
 
 	calcWidth() {
@@ -154,24 +160,24 @@ export default class BaseChart {
 		this.width = this.baseWidth - (this.leftMargin + this.rightMargin);
 	}
 
-	update(data=this.data) {
+	update(data = this.data) {
 		this.data = this.prepareData(data);
 		this.calc(); // builds state
 		this.render();
 	}
 
-	prepareData(data=this.data) {
+	prepareData(data = this.data) {
 		return data;
 	}
 
-	prepareFirstData(data=this.data) {
+	prepareFirstData(data = this.data) {
 		return data;
 	}
 
-	calc() {} // builds state
+	calc() { } // builds state
 
-	render(components=this.components, animate=true) {
-		if(this.config.isNavigable) {
+	render(components = this.components, animate = true) {
+		if (this.config.isNavigable) {
 			// Remove all existing overlays
 			this.overlays.map(o => o.parentNode.removeChild(o));
 			// ref.parentNode.insertBefore(element, ref);
@@ -181,7 +187,7 @@ export default class BaseChart {
 		components.forEach(c => {
 			elementsToAnimate = elementsToAnimate.concat(c.update(animate));
 		});
-		if(elementsToAnimate.length > 0) {
+		if (elementsToAnimate.length > 0) {
 			runSMILAnimation(this.chartWrapper, this.svg, elementsToAnimate);
 			setTimeout(() => {
 				components.forEach(c => c.make());
@@ -194,7 +200,7 @@ export default class BaseChart {
 	}
 
 	updateNav() {
-		if(this.config.isNavigable) {
+		if (this.config.isNavigable) {
 			// if(!this.overlayGuides){
 			this.makeOverlay();
 			this.bindUnits();
@@ -205,7 +211,7 @@ export default class BaseChart {
 	}
 
 	makeChartArea() {
-		if(this.svg) {
+		if (this.svg) {
 			this.chartWrapper.removeChild(this.svg);
 		}
 		this.svg = makeSVGContainer(
@@ -230,12 +236,12 @@ export default class BaseChart {
 		);
 	}
 
-	renderLegend() {}
+	renderLegend() { }
 
-	setupNavigation(init=false) {
-		if(!this.config.isNavigable) return;
+	setupNavigation(init = false) {
+		if (!this.config.isNavigable) return;
 
-		if(init) {
+		if (init) {
 			this.bindOverlay();
 
 			this.keyActions = {
@@ -247,9 +253,9 @@ export default class BaseChart {
 			};
 
 			document.addEventListener('keydown', (e) => {
-				if(isElementInViewport(this.chartWrapper)) {
+				if (isElementInViewport(this.chartWrapper)) {
 					e = e || window.event;
-					if(this.keyActions[e.keyCode]) {
+					if (this.keyActions[e.keyCode]) {
 						this.keyActions[e.keyCode]();
 					}
 				}
@@ -257,26 +263,31 @@ export default class BaseChart {
 		}
 	}
 
-	makeOverlay() {}
-	updateOverlay() {}
-	bindOverlay() {}
-	bindUnits() {}
+	makeOverlay() { }
+	updateOverlay() { }
+	bindOverlay() { }
+	bindUnits() { }
 
-	onLeftArrow() {}
-	onRightArrow() {}
-	onUpArrow() {}
-	onDownArrow() {}
-	onEnterKey() {}
+	onLeftArrow() { }
+	onRightArrow() { }
+	onUpArrow() { }
+	onDownArrow() { }
+	onEnterKey() { }
 
-	addDataPoint() {}
-	removeDataPoint() {}
+	addDataPoint() { }
+	removeDataPoint() { }
 
-	getDataPoint() {}
-	setCurrentDataPoint() {}
+	getDataPoint() { }
+	setCurrentDataPoint() { }
 
-	updateDataset() {}
+	updateDataset() { }
 
 	getDifferentChart(type) {
 		return getDifferentChart(type, this.type, this.parent, this.rawChartArgs);
+	}
+
+	unbindWindowEvents() {
+		window.removeEventListener('resize', this.widthOnlyDraw);
+		window.removeEventListener('orientationchange', this.widthOnlyDraw);
 	}
 }
